@@ -640,192 +640,193 @@ void start(uint16_t offset)
 
   // perform the fetch-decode-execute cycle while the
   // run clock/latch is enabled
-  while (true) // needs to be modified to use is_running() once implemented
-  {
-    // fetch the next instruction from memory
-    uint16_t i = mem_read(reg[RPC]);
+  while (is_running())
+  { // needs to be modified to use is_running() once implemented
+    {
+      // fetch the next instruction from memory
+      uint16_t i = mem_read(reg[RPC]);
 
-    // increment the RPC in preparation for next fetch
-    reg[RPC]++;
+      // increment the RPC in preparation for next fetch
+      reg[RPC]++;
 
-    // invoke opcode execution function to decode and execute
-    op_ex[OPC(i)](i);
+      // invoke opcode execution function to decode and execute
+      op_ex[OPC(i)](i);
 
-    // perform I/O and interrupt tasks before next fetch
-    // check_device_status();
-  }
-}
-
-/** @brief load an LC-3 machine instruction image
- *
- * This functions loads a LC-3 machine language file (binary)
- * from a file into memory.  We expect a simple binary/elf
- * format for LC-3 images here.  All LC-3 bin files have
- * the following expected format:
- *
- * section_address section_size
- * section_code
- * section_address section_size
- * section_code
- * ...
- *
- * All values are read in as 16 bit words.  Each section
- * specifies the address it is to be loaded into memory, and
- * the size of the section (again in 16-bit words).
- *
- * This method reads and loads in all sections found in the file.
- * There can be 1 or more sections in an LC-3 bin file.
- *
- * @param fname The name of the file to open and read the LC-3
- *   machine instructions from.  This is expected to be a binary file
- *   which reads 16 bit values and places them consecutively into
- *   the simulated memory.
-
- */
-void ld_img(char* fname)
-{
-  FILE* in = fopen(fname, "rb");
-  if (NULL == in)
-  {
-    fprintf(stderr, "Cannot open file %s.\n", fname);
-    exit(1);
+      // perform I/O and interrupt tasks before next fetch
+      // check_device_status();
+    }
   }
 
-  fprintf(stdout, "<ld_img> loading image file: <%s>\n", fname);
+  /** @brief load an LC-3 machine instruction image
+   *
+   * This functions loads a LC-3 machine language file (binary)
+   * from a file into memory.  We expect a simple binary/elf
+   * format for LC-3 images here.  All LC-3 bin files have
+   * the following expected format:
+   *
+   * section_address section_size
+   * section_code
+   * section_address section_size
+   * section_code
+   * ...
+   *
+   * All values are read in as 16 bit words.  Each section
+   * specifies the address it is to be loaded into memory, and
+   * the size of the section (again in 16-bit words).
+   *
+   * This method reads and loads in all sections found in the file.
+   * There can be 1 or more sections in an LC-3 bin file.
+   *
+   * @param fname The name of the file to open and read the LC-3
+   *   machine instructions from.  This is expected to be a binary file
+   *   which reads 16 bit values and places them consecutively into
+   *   the simulated memory.
 
-  // attempt to read in sections, and keep reading until we
-  // detect the end of the file
-  uint16_t section_num = 0x1;
-  uint16_t section_address;
-  uint16_t section_size;
-  while (!feof(in))
-  {
-    // the section address and section size are the first
-    // two words for each section, get those first
-    fread(&section_address, sizeof(uint16_t), 1, in);
-    // eof not detected until a read happens at end, so
-    if (feof(in))
-      break;
-    fread(&section_size, sizeof(uint16_t), 1, in);
-
-    // load in the code for this section which is of the indicated
-    // size to the indicated address for the code
-    uint16_t* p = mem + section_address;
-    fread(p, sizeof(uint16_t), section_size, in);
-
-    // display status of loading this section
-    fprintf(stdout, "   section %03d: address: %04X size: %04X\n", section_num, section_address, section_size);
-    section_num++;
-  }
-  fclose(in);
-}
-
-**@brief is user mode bool is_user_mode()
-
-   bool is_user_mode()
-{ return (reg[PSR] & 0x8000) != 0; }
-void user_mode()
-{ reg[PSR] |= 0x8000; }
-*@returns bool True if we are in user mode(bit 15 is 1) and False if we are* in supervisor mode(bit 15 is 0).*/
-
-                                                              **@brief set user mode void supervisor_mode()
-{ reg[PSR] &= 0x7FFF; }
-
-/** @brief set supervisor mode
- *
- * Set the machine into supervisor mode.  This function sets bit 15 to be 0
- * to indicate that we are now running in the more privileged supervisor mode.
- */
-
-**@brief get priority void set_priority(uint16_t p)
-{
-  reg[PSR] &= 0xF8FF;
-  reg[PSR] |= (p & 0x7) << 8;
-}
-*@returns uint16_t Returns the normal uint16 type,
-  though only the least *significant 3 bits should have any value since only priority levels * 0 -
-    7 are possible * /
-
-      **@brief set priority **void set_priority(uint16_t p)
-{
-  reg[PSR] &= 0xF8FF;
-  reg[PSR] |= (p & 0x7) << 8;
-}
-*/
-
-  /** @brief push value to current stack
-  /** @brief push value to current stack */
-  void push(uint16_t value)
-{
-  reg[R6]--;
-  mem_write(reg[R6], value);
-}
-*@param value* /
-
-  /** @brief pop top of current stack
    */
-  void pop()
-{ reg[R6]++; }
+  void ld_img(char* fname)
+  {
+    FILE* in = fopen(fname, "rb");
+    if (NULL == in)
+    {
+      fprintf(stderr, "Cannot open file %s.\n", fname);
+      exit(1);
+    }
 
-**@brief enable clock run bit** void enable_clock()
-{
-  reg[MCR] |= 0x8000; // set bit 15 to 1
-}
-*/
+    fprintf(stdout, "<ld_img> loading image file: <%s>\n", fname);
 
-  **@brief disable clock run bit* void disable_clock()
-{
-  reg[MCR] &= 0x7FFF; // clear bit 15
-}
+    // attempt to read in sections, and keep reading until we
+    // detect the end of the file
+    uint16_t section_num = 0x1;
+    uint16_t section_address;
+    uint16_t section_size;
+    while (!feof(in))
+    {
+      // the section address and section size are the first
+      // two words for each section, get those first
+      fread(&section_address, sizeof(uint16_t), 1, in);
+      // eof not detected until a read happens at end, so
+      if (feof(in))
+        break;
+      fread(&section_size, sizeof(uint16_t), 1, in);
 
-**@brief test is clock running** bool is_running()
-{ return (reg[MCR] & 0x8000) != 0; }
-*@returns bool True if the clock is currently enabled and thus the *system is currently running,
-  false if not.*/
+      // load in the code for this section which is of the indicated
+      // size to the indicated address for the code
+      uint16_t* p = mem + section_address;
+      fread(p, sizeof(uint16_t), section_size, in);
 
-    /** @brief exception
-     *
-     * The exception service vector is in low 8 bits 7-0 of the
-     * instruction.  The exception service vector indexes into the
-     * exception vector table, that exists in privileged memory from
-     * 0x0100 - 0x0102.  The usual defined LC-3 exceptions include
-     *
-     * 0x00 privelege mode violation
-     * 0x01 illegal opcode exception
-     * 0x02 access control violation ACV
-     *
-     * @param i The exception vector.  For this function this simply holds
-     *   the exception vector number we use to index into the exception service
-     *   vector table.
+      // display status of loading this section
+      fprintf(stdout, "   section %03d: address: %04X size: %04X\n", section_num, section_address, section_size);
+      section_num++;
+    }
+    fclose(in);
+  }
+
+  **@brief is user mode bool is_user_mode()
+
+     bool is_user_mode()
+  { return (reg[PSR] & 0x8000) != 0; }
+  void user_mode()
+  { reg[PSR] |= 0x8000; }
+  *@returns bool True if we are in user mode(bit 15 is 1) and False if we are* in supervisor mode(bit 15 is 0).*/
+
+                                                                **@brief set user mode void supervisor_mode()
+  { reg[PSR] &= 0x7FFF; }
+
+  /** @brief set supervisor mode
+   *
+   * Set the machine into supervisor mode.  This function sets bit 15 to be 0
+   * to indicate that we are now running in the more privileged supervisor mode.
+   */
+
+  **@brief get priority void set_priority(uint16_t p)
+  {
+    reg[PSR] &= 0xF8FF;
+    reg[PSR] |= (p & 0x7) << 8;
+  }
+  *@returns uint16_t Returns the normal uint16 type,
+    though only the least *significant 3 bits should have any value since only priority levels * 0 -
+      7 are possible * /
+
+        **@brief set priority **void set_priority(uint16_t p)
+  {
+    reg[PSR] &= 0xF8FF;
+    reg[PSR] |= (p & 0x7) << 8;
+  }
+  */
+
+    /** @brief push value to current stack
+    /** @brief push value to current stack */
+    void push(uint16_t value)
+  {
+    reg[R6]--;
+    mem_write(reg[R6], value);
+  }
+  *@param value* /
+
+    /** @brief pop top of current stack
      */
-    void trap(uint16_t i)
-{
-  uint16_t tempPSR = reg[PSR];
+    void pop()
+  { reg[R6]++; }
 
-  if (is_user_mode())
+  **@brief enable clock run bit** void enable_clock()
   {
-    reg[USP] = reg[R6];
-    reg[R6] = reg[SSP];
-    supervisor_mode();
+    reg[MCR] |= 0x8000; // set bit 15 to 1
+  }
+  */
+
+    **@brief disable clock run bit* void disable_clock()
+  {
+    reg[MCR] &= 0x7FFF; // clear bit 15
   }
 
-  push(reg[RPC]);
-  push(tempPSR);
+  **@brief test is clock running** bool is_running()
+  { return (reg[MCR] & 0x8000) != 0; }
+  *@returns bool True if the clock is currently enabled and thus the *system is currently running,
+    false if not.*/
 
-  uint16_t trapvect = TRP(i);
-  reg[RPC] = mem_read(trapvect);
-}
-void rti(uint16_t i)
-{
-  reg[PSR] = mem_read(reg[R6]);
-  pop();
-
-  reg[RPC] = mem_read(reg[R6]);
-  pop();
-
-  if (is_user_mode())
+      /** @brief exception
+       *
+       * The exception service vector is in low 8 bits 7-0 of the
+       * instruction.  The exception service vector indexes into the
+       * exception vector table, that exists in privileged memory from
+       * 0x0100 - 0x0102.  The usual defined LC-3 exceptions include
+       *
+       * 0x00 privelege mode violation
+       * 0x01 illegal opcode exception
+       * 0x02 access control violation ACV
+       *
+       * @param i The exception vector.  For this function this simply holds
+       *   the exception vector number we use to index into the exception service
+       *   vector table.
+       */
+      void trap(uint16_t i)
   {
-    reg[SSP] = reg[R6];
-    reg[R6] = reg[USP];
+    uint16_t tempPSR = reg[PSR];
+
+    if (is_user_mode())
+    {
+      reg[USP] = reg[R6];
+      reg[R6] = reg[SSP];
+      supervisor_mode();
+    }
+
+    push(reg[RPC]);
+    push(tempPSR);
+
+    uint16_t trapvect = TRP(i);
+    reg[RPC] = mem_read(trapvect);
   }
-}
+  void rti(uint16_t i)
+  {
+    reg[PSR] = mem_read(reg[R6]);
+    pop();
+
+    reg[RPC] = mem_read(reg[R6]);
+    pop();
+
+    if (is_user_mode())
+    {
+      reg[SSP] = reg[R6];
+      reg[R6] = reg[USP];
+    }
+  }
