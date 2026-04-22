@@ -1,0 +1,24 @@
+; Exception Service Routine to handle privilege mode exception
+;
+; x0100 Privilege Mode Exception code
+; x0640 Privilege Mode Exception service vector
+                .ORIG   0x0600
+
+; print message indicating exception that occurred
+
+                LD      R0, ASCIINewLine
+                TRAP    0x21            ; putc
+                LEA     R0, Message
+                TRAP    0x22            ; putline
+                LD      R0, ASCIINewLine 
+                TRAP    0x21            ; putc
+
+; halt execution
+                TRAP    0x25 
+                RTI                     ; never reached
+
+; Some constants
+;
+ASCIINewLine    .FILL   0x000A
+Message         .STRINGZ "Privilege Mode Exception"
+                .END

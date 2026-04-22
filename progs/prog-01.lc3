@@ -1,0 +1,7 @@
+; system test program 01
+;
+; Test that illegal opcode exception generates
+; expected sequence of traps and outputs on console.
+                        .ORIG 0x3000
+                        .FILL 0xD000    ; D or opcode bits 1101 is reserved opcode
+                        .END 

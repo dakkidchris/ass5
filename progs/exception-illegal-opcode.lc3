@@ -1,0 +1,24 @@
+; Exception Service Routine to handle illegal opcode exception
+;
+; x0101 Illegal Opcode Exception code
+; x0640 Illegal Opcode Exception service vector
+                .ORIG   0x0640
+
+; print message indicating exception that occurred
+
+                LD      R0, ASCIINewLine
+                TRAP    0x21            ; putc
+                LEA     R0, Message
+                TRAP    0x22            ; putline
+                LD      R0, ASCIINewLine 
+                TRAP    0x21            ; putc
+
+; halt execution
+                TRAP    0x25 
+                RTI                     ; never reached
+
+; Some constants
+;
+ASCIINewLine    .FILL   0x000A
+Message         .STRINGZ "Illegal Opcode Exception"
+                .END

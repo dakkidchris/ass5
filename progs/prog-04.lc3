@@ -1,0 +1,9 @@
+; system test program 04
+;
+; Test IN service routine to input a single character for user
+                .ORIG   0x3000
+                TRAP    0x23            ; prompt for first character
+                TRAP    0x23            ; prompt for second character 
+                TRAP    0x23            ; prompt for third character
+                TRAP    0x25            ; halt system
+                .END

@@ -1,0 +1,94 @@
+{
+  "tests": [
+    {
+      "name": "test successfully builds",
+      "setup": "make clean",
+      "run": "make",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 20
+    },
+    {
+      "name": "Task 1: PSR Privilege mode and priority level",
+      "setup": "make -s",
+      "run": "./test --list-test-names-only [task1] | grep . && ./test [task1]",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Task 2: machine stack push/pop",
+      "setup": "make -s",
+      "run": "./test --list-test-names-only [task2] | grep . && ./test [task2]",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Task 3: master control register (MCR) run latch",
+      "setup": "make -s",
+      "run": "./test --list-test-names-only [task3] | grep . && ./test [task3]",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Task 4: `trap()` and `rti()` instructions",
+      "setup": "make -s",
+      "run": "./test --list-test-names-only [task4] | grep . && ./test [task4]",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Task 5: trap halt ends `start()` fetch-decode-execute cycle",
+      "setup": "make -s",
+      "run": "./test --list-test-names-only [task5] | grep . && ./test [task5]",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Task 6: KBSR and DSR status update on memory access ",
+      "setup": "make -s",
+      "run": "./test --list-test-names-only [task6] | grep . && ./test [task6]",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Task 7: LC-3 exception generation mechanism",
+      "setup": "make -s",
+      "run": "./test --list-test-names-only [task7] | grep . && ./test [task7]",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "system tests",
+      "setup": "make -s",
+      "run": "./scripts/run-system-tests",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 1,
+      "points": 10
+    }
+  ]
+}

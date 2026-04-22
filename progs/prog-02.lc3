@@ -1,0 +1,7 @@
+; system test program 02
+;
+; Test that privilege mode exception generates
+; expected sequence of traps and outputs on console.
+                        .ORIG 0x3000
+                        RTI             ; RTI is a privileged instruction
+                        .END 

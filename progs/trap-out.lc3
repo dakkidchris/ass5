@@ -1,0 +1,27 @@
+; Service Routine OUT to output a single character
+;
+; Patt & Patel Figure 9.13
+; x21 OUT
+; x0420 OUT Trap Service Vector
+;
+; Write a single character to display
+	        .ORIG	0x0420
+	        ST	R1, SaveR1		; R1 a temp for MC register
+
+; write the character
+
+TryWrite        LDI     R1, DSR                 ; Get status
+                BRzp    TryWrite                ; Bit 15 on says display is ready
+WriteIt         STI     R0, DDR                 ; Write character
+
+; return from trap
+
+Return          LD      R1, SaveR1              ; Restore registers
+                RTI                             ; Return from trap 
+                
+; Some constants
+
+DSR             .FILL   0xFE04                  ; Address of display status register
+DDR             .FILL   0xFE06                  ; Address of display data register
+SaveR1          .BLKW   1
+                .END

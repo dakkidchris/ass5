@@ -1,0 +1,13 @@
+; Define the exception vector service table
+;
+; Patt & Patel section A.3.2
+; 
+; 0100: x0600 x00 privilege mode violation
+; 0101: x0640 x01 illegal opcode exception
+; 0102: x0680 x02 access control violation (ACV)
+	.ORIG	0x0100			; Exception vector service table starts at top of memory 0x0100
+	.FILL	0x0600			; x00 privilege mode violation
+	.FILL	0x0640			; x01 illegal opcode exception
+	.FILL	0x0680			; x02 access control violation (ACV)
+	.BLKW	xFC			; Ensure 0x0103 - 0x01FF are also 0 on load, in case garbage there on machine start
+	.END

@@ -1,0 +1,8 @@
+; system test program 03
+;
+; Test that access control violation (ACV) exception generates
+; expected sequence of traps and outputs on console.
+                .ORIG   0x3000
+                LDI     R0, PRIV_MEM    ; Attempt read of privileged memory, indirect read of address
+PRIV_MEM        .FILL   0x0100                
+                .END 

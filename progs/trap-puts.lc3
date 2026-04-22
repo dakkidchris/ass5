@@ -1,0 +1,39 @@
+; Service Routine PUTS to output a single character
+;
+; Patt & Patel Figure 9.16
+; x22 PUTS
+; x0460 PUTS Trap Service Vector
+;
+; This service routine writes a NULL-terminated string to the console.
+; It services the PUTS service call (TRAP x22).
+; Inputs: R0 is a pointer to the string to print.
+;
+	        .ORIG	0x0460
+                ST      R0, SaveR0      ; Save registers that
+                ST      R1, SaveR1      ; are needed by this 
+                ST      R3, SaveR3      ; trap service routine 
+
+; Loop through each character in the array
+
+Loop            LDR     R1, R0, #0      ; Retrieve the character(s)
+                BRz     Done            ; If it is 0, done 
+L2              LDI     R3, DSR
+                BRzp    L2 
+                STI     R1, DDR         ; Write the character 
+                ADD     R0, R0, #1      ; Increment pointer 
+                BRnzp   Loop            ; Do it all over again
+
+; Return from the request for service call
+
+Done            LD      R3, SaveR3 
+                LD      R1, SaveR1 
+                LD      R0, SaveR0 
+                RTI 
+
+; Some constants
+DSR             .FILL   0xFE04          ; Address of display status register
+DDR             .FILL   0xFE06          ; Address of display data register 
+SaveR0          .FILL   0x0000
+SaveR1          .FILL   0x0000
+SaveR3          .FILL   0x0000
+                .END
