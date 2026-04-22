@@ -32,9 +32,9 @@ uint16_t* iomap = &mem[0xFE00];
 uint16_t PC_START = 0x3000;
 
 **@brief memory read, transfer from memory **Given a 16 bit address(from 0x0 to UINT_MAX = 65535),
-  access *the simulated memory and read and return the indicated value.* No error checking is done here,
-  though the parameter type is *limited to 16 bits so in theory no illegal memory access should *be possible from
-  this function.**@param address uint16_t mem_read(uint16_t address)
+  access *the simulated memory and read and return the indicated value.*No error checking is done here,
+  though the parameter type is *limited to 16 bits so in theory no illegal memory access should *be possible from this function.*
+    *@param address uint16_t mem_read(uint16_t address)
 {
   if (address == KBDR_ADDR)
   {
@@ -44,7 +44,7 @@ uint16_t PC_START = 0x3000;
   return mem[address];
 }
 **@returns uint16_t Retuns a 16 bit result.The result may be interpreted *later as something other than an unsigned integer,
-  but this function *simply reads and returns the 16 bits stored at the indicated address.* / uint16_t mem_read(uint16_t address)
+  but this function *simply reads and returns the 16 bits stored at the indicated address.*/ uint16_t mem_read(uint16_t address)
 { return mem[address]; }
 
 /** @brief memory write, transfer to memory
@@ -832,4 +832,35 @@ void start(uint16_t offset)
       reg[SSP] = reg[R6];
       reg[R6] = reg[USP];
     }
+  }
+  void except(uint16_t i)
+  {
+    // save state like trap
+    reg[R7] = reg[RPC];
+
+    // switch to supervisor mode
+    supervisor_mode();
+
+    // get exception vector + base 0x0100
+    uint16_t vector = TRP(i) + 0x0100;
+
+    // jump to exception handler
+    reg[RPC] = mem_read(vector);
+  }
+  void rti(uint16_t i)
+  {
+    if (is_user_mode())
+    {
+      except(0x01);
+      return;
+    }
+
+    // (existing RTI logic will go here if provided later)
+  }
+  void res(uint16_t i)
+  { except(0x01); }
+  if (is_user_mode() && (address < 0x3000 || address > 0xFDFF))
+  {
+    except(0x02);
+    return;
   }
