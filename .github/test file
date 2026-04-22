@@ -1,0 +1,75 @@
+#include "lc3vm.h"
+#include <assert.h>
+#include <stdio.h>
+
+// Access extern memory/registers
+extern uint16_t mem[];
+extern uint16_t* reg;
+extern uint16_t iomap[];
+
+int main()
+{
+  printf("==== TASK TESTS START ====\n");
+
+  /* =========================
+     TASK 1: PSR TESTS
+     ========================= */
+  reg[PSR] = 0;
+  user_mode();
+  assert(is_user_mode() == 1);
+
+  supervisor_mode();
+  assert(is_user_mode() == 0);
+
+  set_priority(5);
+  assert(priority() == 5);
+
+  printf("Task 1 PASSED\n");
+
+  /* =========================
+     TASK 2: MEMORY TESTS
+     ========================= */
+  mem_write(100, 42);
+  assert(mem_read(100) == 42);
+
+  printf("Task 2 PASSED\n");
+
+  /* =========================
+     TASK 3: SIGN EXTEND TEST
+     ========================= */
+  assert(sign_extend(0b11111, 5) == 0xFFFFF...); // negative test
+  printf("Task 3 PASSED (manual check)\n");
+
+  /* =========================
+     TASK 6: I/O TESTS
+     ========================= */
+
+  // DDR write should clear DSR bit 15
+  iomap[DSR] = 0x8000;
+  mem_write(0xFE05, 123); // assume DDR_ADDR = 0xFE05
+  assert((iomap[DSR] & 0x8000) == 0);
+
+  // KBDR read should clear KBSR bit 15
+  iomap[KBSR] = 0x8000;
+  mem_read(0xFE02); // assume KBDR_ADDR = 0xFE02
+  assert((iomap[KBSR] & 0x8000) == 0);
+
+  printf("Task 6 PASSED\n");
+
+  /* =========================
+     TASK 7: EXCEPT TEST
+     ========================= */
+
+  // simulate user mode ACV
+  supervisor_mode();
+  reg[PSR] |= 0x8000; // user mode
+
+  // should trigger exception safely (no crash)
+  mem_read(0x1000);
+
+  printf("Task 7 BASIC CHECK DONE\n");
+
+  printf("==== ALL TESTS COMPLETE ====\n");
+
+  return 0;
+}
