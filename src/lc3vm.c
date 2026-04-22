@@ -781,7 +781,7 @@ void user_mode()
 **@brief test is clock running** bool is_running()
 { return (reg[MCR] & 0x8000) != 0; }
 *@returns bool True if the clock is currently enabled and thus the *system is currently running,
-  false if not.* /
+  false if not.*/
 
     /** @brief exception
      *
@@ -798,3 +798,34 @@ void user_mode()
      *   the exception vector number we use to index into the exception service
      *   vector table.
      */
+    void trap(uint16_t i)
+{
+  uint16_t tempPSR = reg[PSR];
+
+  if (is_user_mode())
+  {
+    reg[USP] = reg[R6];
+    reg[R6] = reg[SSP];
+    supervisor_mode();
+  }
+
+  push(reg[RPC]);
+  push(tempPSR);
+
+  uint16_t trapvect = TRP(i);
+  reg[RPC] = mem_read(trapvect);
+}
+void rti(uint16_t i)
+{
+  reg[PSR] = mem_read(reg[R6]);
+  pop();
+
+  reg[RPC] = mem_read(reg[R6]);
+  pop();
+
+  if (is_user_mode())
+  {
+    reg[SSP] = reg[R6];
+    reg[R6] = reg[USP];
+  }
+}
