@@ -31,23 +31,20 @@ uint16_t* reg = &mem[0xFFF0];
 uint16_t* iomap = &mem[0xFE00];
 uint16_t PC_START = 0x3000;
 
-/** @brief memory read, transfer from memory
- *
- * Given a 16 bit address (from 0x0 to UINT_MAX=65535), access
- * the simulated memory and read and return the indicated value.
- * No error checking is done here, though the parameter type is
- * limited to 16 bits so in theory no illegal memory access should
- * be possible from this function.
- *
- * @param address The memory address to read and transfer data from.
- *   This parameter is an unsigned 16 bit integer, all addresses
- *   are constrained to be 16 bits in size in LC-3.
- *
- * @returns uint16_t Retuns a 16 bit result.  The result may be interpreted
- *   later as something other than an unsigned integer, but this function
- *   simply reads and returns the 16 bits stored at the indicated address.
- */
-uint16_t mem_read(uint16_t address)
+**@brief memory read, transfer from memory **Given a 16 bit address(from 0x0 to UINT_MAX = 65535),
+  access *the simulated memory and read and return the indicated value.* No error checking is done here,
+  though the parameter type is *limited to 16 bits so in theory no illegal memory access should *be possible from
+  this function.**@param address uint16_t mem_read(uint16_t address)
+{
+  if (address == KBDR_ADDR)
+  {
+    iomap[KBSR] &= 0x7FFF; // clear bit 15
+  }
+
+  return mem[address];
+}
+**@returns uint16_t Retuns a 16 bit result.The result may be interpreted *later as something other than an unsigned integer,
+  but this function *simply reads and returns the 16 bits stored at the indicated address.* / uint16_t mem_read(uint16_t address)
 { return mem[address]; }
 
 /** @brief memory write, transfer to memory
@@ -66,8 +63,14 @@ uint16_t mem_read(uint16_t address)
  *   character, or some other type of data.
  */
 void mem_write(uint16_t address, uint16_t val)
-{ mem[address] = val; }
+{
+  mem[address] = val;
 
+  if (address == DDR_ADDR)
+  {
+    iomap[DSR] &= 0x7FFF; // clear bit 15
+  }
+}
 /** @brief sign extend bits
  *
  * Given a 16-bit value and a sign position, perform a twos-complement sign
