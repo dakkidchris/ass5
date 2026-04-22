@@ -139,7 +139,12 @@ void ld_img(char* fname);
 // at the bottom of the lc3vm.c file
 
 // task 1 PSR priority/privilege function declarations here
+bool is_user_mode();
+void user_mode();
+void supervisor_mode();
 
+uint16_t priority();
+void set_priority(uint16_t p);
 // task 2 stack manipulation function declarations here
 
 // task 3 MCR clock latch manipulation

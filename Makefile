@@ -1,4 +1,3 @@
-
 # source files in this project (for beautification)
 PROJECT_NAME=assg05
 assg_src = lc3vm.c \
@@ -25,3 +24,11 @@ include include/Makefile.inc
 # assignment header file specific dependencies
 ${OBJ_DIR}/lc3vm.o: ${INC_DIR}/lc3vm.h ${INC_DIR}/lc3vm_dbg.h ${SRC_DIR}/lc3vm.c
 ${OBJ_DIR}/lc3vm_dbg.o: ${INC_DIR}/lc3vm_dbg.h ${SRC_DIR}/lc3vm_dbg.c
+
+.PHONY: clean test
+
+clean:
+	rm -f *.o *.exe *.out
+
+test:
+	./test_executable  # Replace with your actual test command or script

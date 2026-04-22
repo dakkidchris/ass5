@@ -48,9 +48,7 @@ uint16_t PC_START = 0x3000;
  *   simply reads and returns the 16 bits stored at the indicated address.
  */
 uint16_t mem_read(uint16_t address)
-{
-  return mem[address];
-}
+{ return mem[address]; }
 
 /** @brief memory write, transfer to memory
  *
@@ -68,9 +66,7 @@ uint16_t mem_read(uint16_t address)
  *   character, or some other type of data.
  */
 void mem_write(uint16_t address, uint16_t val)
-{
-  mem[address] = val;
-}
+{ mem[address] = val; }
 
 /** @brief sign extend bits
  *
@@ -324,9 +320,7 @@ void ldr(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void lea(uint16_t i)
-{
-  reg[DR(i)] = reg[RPC] + PCOFF9(i);
-}
+{ reg[DR(i)] = reg[RPC] + PCOFF9(i); }
 
 /** @brief store to PC + offset
  *
@@ -342,9 +336,7 @@ void lea(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void st(uint16_t i)
-{
-  mem_write(reg[RPC] + PCOFF9(i), reg[DR(i)]);
-}
+{ mem_write(reg[RPC] + PCOFF9(i), reg[DR(i)]); }
 
 /** @brief store indirect
  *
@@ -361,9 +353,7 @@ void st(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void sti(uint16_t i)
-{
-  mem_write(mem_read(reg[RPC] + PCOFF9(i)), reg[DR(i)]);
-}
+{ mem_write(mem_read(reg[RPC] + PCOFF9(i)), reg[DR(i)]); }
 
 /** @brief store offset relative to base address
  *
@@ -379,9 +369,7 @@ void sti(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void str(uint16_t i)
-{
-  mem_write(reg[SR1(i)] + OFF6(i), reg[DR(i)]);
-}
+{ mem_write(reg[SR1(i)] + OFF6(i), reg[DR(i)]); }
 
 /** @brief jump unconditionally
  *
@@ -395,9 +383,7 @@ void str(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void jmp(uint16_t i)
-{
-  reg[RPC] = reg[SR1(i)];
-}
+{ reg[RPC] = reg[SR1(i)]; }
 
 /** @brief conditional branch
  *
@@ -734,21 +720,16 @@ void ld_img(char* fname)
   fclose(in);
 }
 
-/** @brief is user mode
- *
- * Bit 15 of the PSR determines if we are in supervisor or user mode.  This function
- * tests bit 15 of the PSR.  When it is 0 we are currently in supervisor mode, and
- * when it is 1 we are in  user mode.
- *
- * @returns bool True if we are in user mode (bit 15 is 1) and False if we are
- *   in supervisor mode (bit 15 is 0).
- */
+**@brief is user mode bool is_user_mode()
 
-/** @brief set user mode
- *
- * Set the machine into user mode.  This function sets bit 15 to be 1 to indicate
- * that we are now running in the less privileged user mode.
- */
+   bool is_user_mode()
+{ return (reg[PSR] & 0x8000) != 0; }
+void user_mode()
+{ reg[PSR] |= 0x8000; }
+*@returns bool True if we are in user mode(bit 15 is 1) and False if we are* in supervisor mode(bit 15 is 0).*/
+
+                                                              **@brief set user mode void supervisor_mode()
+{ reg[PSR] &= 0x7FFF; }
 
 /** @brief set supervisor mode
  *
@@ -756,79 +737,74 @@ void ld_img(char* fname)
  * to indicate that we are now running in the more privileged supervisor mode.
  */
 
-/** @brief get priority
- *
- * Get and return the current priority set in the PSR.  The priority
- * is contained in bits PSR[10:8] of the PSR.
- *
- * @returns uint16_t Returns the normal uint16 type, though only the least
- *   significant 3 bits should have any value since only priority levels
- *   0 - 7 are possible
- */
+**@brief get priority void set_priority(uint16_t p)
+{
+  reg[PSR] &= 0xF8FF;
+  reg[PSR] |= (p & 0x7) << 8;
+}
+*@returns uint16_t Returns the normal uint16 type,
+  though only the least *significant 3 bits should have any value since only priority levels * 0 -
+    7 are possible * /
 
-/** @brief set priority
- *
- * Set the priority in the PSR to the indicated priority level.  We
- * are passined in a full 16 bit value, but only the least 3 significant
- * bits should be used when setting the priority.
- *
- * @param p The new priority level to set.  This should be a value from 0-7,
- *   it is undefined what happens if a value not in this range is set for the
- *   priority.
- */
+      **@brief set priority **void set_priority(uint16_t p)
+{
+  reg[PSR] &= 0xF8FF;
+  reg[PSR] |= (p & 0x7) << 8;
+}
+*/
 
-/** @brief push value to current stack
- *
- * This method assumes `R6` holds the address of the current stack in use by running
- * programs.  This function pushes the indidcated value onto the top of the stack by
- * first decreasing the stack address in `R6` then writing the value to this memory
- * location.  This function is required to use `mem_write()` to perform the write
- * that pushes the value on top of the stack.
- *
- * @param value
- */
+  /** @brief push value to current stack
+   *
+   * This method assumes `R6` holds the address of the current stack in use by running
+   * programs.  This function pushes the indidcated value onto the top of the stack by
+   * first decreasing the stack address in `R6` then writing the value to this memory
+   * location.  This function is required to use `mem_write()` to perform the write
+   * that pushes the value on top of the stack.
+   *
+   * @param value
+   */
 
-/** @brief pop top of current stack
- *
- * Pop off the top value of the current stack.  This method assumes
- * that `R6` holds the address of the top of the current stack in use
- * by the running program.
- */
+  /** @brief pop top of current stack
+   *
+   * Pop off the top value of the current stack.  This method assumes
+   * that `R6` holds the address of the top of the current stack in use
+   * by the running program.
+   */
 
-/** @brief enable clock run bit
- *
- * Enable the clock run by setting the MCR run latch bit [15]
- * to 1.
- */
+  /** @brief enable clock run bit
+   *
+   * Enable the clock run by setting the MCR run latch bit [15]
+   * to 1.
+   */
 
-/** @brief disable clock run bit
- *
- * Disable the machine clock by setting the MCR run latch bit
- * [15] to 0.
- */
+  /** @brief disable clock run bit
+   *
+   * Disable the machine clock by setting the MCR run latch bit
+   * [15] to 0.
+   */
 
-/** @brief test is clock running
- *
- * Check the MCR clock enable / run latch bit [15] to determine
- * if the system clock is currently enabled, and thus if the
- * machine is currently running or not.
- *
- * @returns bool True if the clock is currently enabled and thus the
- *   system is currently running, false if not.
- */
+  /** @brief test is clock running
+   *
+   * Check the MCR clock enable / run latch bit [15] to determine
+   * if the system clock is currently enabled, and thus if the
+   * machine is currently running or not.
+   *
+   * @returns bool True if the clock is currently enabled and thus the
+   *   system is currently running, false if not.
+   */
 
-/** @brief exception
- *
- * The exception service vector is in low 8 bits 7-0 of the
- * instruction.  The exception service vector indexes into the
- * exception vector table, that exists in privileged memory from
- * 0x0100 - 0x0102.  The usual defined LC-3 exceptions include
- *
- * 0x00 privelege mode violation
- * 0x01 illegal opcode exception
- * 0x02 access control violation ACV
- *
- * @param i The exception vector.  For this function this simply holds
- *   the exception vector number we use to index into the exception service
- *   vector table.
- */
+  /** @brief exception
+   *
+   * The exception service vector is in low 8 bits 7-0 of the
+   * instruction.  The exception service vector indexes into the
+   * exception vector table, that exists in privileged memory from
+   * 0x0100 - 0x0102.  The usual defined LC-3 exceptions include
+   *
+   * 0x00 privelege mode violation
+   * 0x01 illegal opcode exception
+   * 0x02 access control violation ACV
+   *
+   * @param i The exception vector.  For this function this simply holds
+   *   the exception vector number we use to index into the exception service
+   *   vector table.
+   */
