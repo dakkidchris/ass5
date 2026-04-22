@@ -767,40 +767,34 @@ void user_mode()
   void pop()
 { reg[R6]++; }
 
-/** @brief enable clock run bit
- *
- * Enable the clock run by setting the MCR run latch bit [15]
- * to 1.
- */
+**@brief enable clock run bit** void enable_clock()
+{
+  reg[MCR] |= 0x8000; // set bit 15 to 1
+}
+*/
 
-/** @brief disable clock run bit
- *
- * Disable the machine clock by setting the MCR run latch bit
- * [15] to 0.
- */
+  **@brief disable clock run bit* void disable_clock()
+{
+  reg[MCR] &= 0x7FFF; // clear bit 15
+}
 
-/** @brief test is clock running
- *
- * Check the MCR clock enable / run latch bit [15] to determine
- * if the system clock is currently enabled, and thus if the
- * machine is currently running or not.
- *
- * @returns bool True if the clock is currently enabled and thus the
- *   system is currently running, false if not.
- */
+**@brief test is clock running** bool is_running()
+{ return (reg[MCR] & 0x8000) != 0; }
+*@returns bool True if the clock is currently enabled and thus the *system is currently running,
+  false if not.* /
 
-/** @brief exception
- *
- * The exception service vector is in low 8 bits 7-0 of the
- * instruction.  The exception service vector indexes into the
- * exception vector table, that exists in privileged memory from
- * 0x0100 - 0x0102.  The usual defined LC-3 exceptions include
- *
- * 0x00 privelege mode violation
- * 0x01 illegal opcode exception
- * 0x02 access control violation ACV
- *
- * @param i The exception vector.  For this function this simply holds
- *   the exception vector number we use to index into the exception service
- *   vector table.
- */
+    /** @brief exception
+     *
+     * The exception service vector is in low 8 bits 7-0 of the
+     * instruction.  The exception service vector indexes into the
+     * exception vector table, that exists in privileged memory from
+     * 0x0100 - 0x0102.  The usual defined LC-3 exceptions include
+     *
+     * 0x00 privelege mode violation
+     * 0x01 illegal opcode exception
+     * 0x02 access control violation ACV
+     *
+     * @param i The exception vector.  For this function this simply holds
+     *   the exception vector number we use to index into the exception service
+     *   vector table.
+     */
